@@ -1,0 +1,44 @@
+<!-- index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>📈 StockPulse</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <h1>📊 Real-Time Stock Trade Monitor</h1>
+
+  <div class="dashboard">
+    <!-- Left Side -->
+    <div class="left-panel">
+      <section>
+        <h2>🟢 Live Trades</h2>
+        <pre id="liveTrades">Waiting for data...</pre>
+      </section>
+
+      <section>
+        <h2>⚠️ Anomalies</h2>
+        <pre id="anomalies">Loading anomalies...</pre>
+      </section>
+
+      <section>
+        <h2>📋 Trade Summaries</h2>
+        <pre id="summary">Loading summary...</pre>
+      </section>
+    </div>
+
+    <!-- Right Side -->
+    <div class="right-panel">
+      <section>
+        <h2>📈 Top 5 Stocks by Volume</h2>
+        <canvas id="summaryChart" width="400" height="250"></canvas>
+      </section>
+    </div>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
+  <script src="app.js" defer></script>
+</body>
+</html>

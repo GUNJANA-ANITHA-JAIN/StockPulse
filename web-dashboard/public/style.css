@@ -1,0 +1,36 @@
+body {
+  font-family: Arial, sans-serif;
+  margin: 2rem;
+  background: #f4f4f4;
+}
+
+.dashboard {
+  display: flex;
+  gap: 2rem;
+}
+
+.left-panel, .right-panel {
+  background: white;
+  padding: 1rem;
+  border-radius: 8px;
+  flex: 1;
+  box-shadow: 0 0 10px rgba(0,0,0,0.05);
+}
+
+section {
+  margin-bottom: 1.5rem;
+}
+
+pre {
+  background: #fefefe;
+  padding: 1rem;
+  border-radius: 8px;
+  max-height: 200px;
+  overflow-y: auto;
+  white-space: pre-wrap;
+}
+
+canvas {
+  width: 100% !important;
+  height: auto !important;
+}
