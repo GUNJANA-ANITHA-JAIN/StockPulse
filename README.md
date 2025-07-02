@@ -60,6 +60,7 @@ StockPulse is a real-time stock monitoring system that simulates high-frequency 
 ## 🛠️ Installation & Setup
 Prerequisites:
 Java ,Maven ,Node.js ,Docker & Docker Compose
+
 1️⃣ Clone the Repository
 git clone https://github.com/your-username/stockpulse.git
 cd stockpulse
