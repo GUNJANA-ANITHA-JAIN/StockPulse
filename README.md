@@ -57,32 +57,86 @@ StockPulse is a real-time stock monitoring system that simulates high-frequency 
 - Sends live updates via WebSocket without page reloads
 
 ---
-## 🛠️ Installation & Setup
-Prerequisites:
-Java ,Maven ,Node.js ,Docker & Docker Compose
+## 🚀 Getting Started
 
-1️⃣ Clone the Repository
-git clone https://github.com/your-username/stockpulse.git
-cd stockpulse
-2️⃣ Start Kafka, Zookeeper & MongoDB (via Docker Compose)
+### ✅ **Prerequisites**
+
+Make sure the following are installed on your system:
+
+* Java 11+
+* Maven
+* Node.js & npm
+* Docker & Docker Compose
+
+---
+
+### 📦 **1️⃣ Clone the Repository**
+
+```bash
+git clone https://github.com/GUNJANA-ANITHA-JAIN/StockPulse.git
+cd StockPulse
+```
+
+---
+
+### 🐳 **2️⃣ Start Kafka, Zookeeper & MongoDB**
+
+```bash
 docker-compose up -d
-3️⃣ Run the Kafka Trade Producer
+```
+
+---
+
+### 🛠️ **3️⃣ Run the Kafka Trade Producer**
+
+```bash
 mvn clean compile
 mvn exec:java -Dexec.mainClass=com.example.stockmonitor.producer.TradeProducer
-4️⃣ Run the Load/Stress Simulator (1000 trades in 20 sec)
+```
+
+---
+
+### 💣 **4️⃣ Run the Load/Stress Simulator**
+
+> 🔥 Sends 1000 trades in 20 seconds
+
+```bash
 mvn exec:java -Dexec.mainClass=com.example.stockmonitor.producer.TradeLoadSimulator
-5️⃣ Run the Kafka Consumers
-Open 3 terminals or use IntelliJ multi-run
-# Anomaly Consumer
+```
+
+---
+
+### 👀 **5️⃣ Run the Kafka Consumers**
+
+> You can run these in multiple terminals or with IntelliJ Multi-Run
+
+#### 🔍 Anomaly Consumer
+
+```bash
 mvn exec:java -Dexec.mainClass=com.example.stockmonitor.consumer.AnomalyConsumer
-# Dashboard Consumer
+```
+
+#### 📊 Dashboard Consumer
+
+```bash
 mvn exec:java -Dexec.mainClass=com.example.stockmonitor.consumer.DashboardConsumer
-# Report Consumer
+```
+
+#### 📝 Report Consumer
+
+```bash
 mvn exec:java -Dexec.mainClass=com.example.stockmonitor.consumer.ReportConsumer
-6️⃣ Start the WebSocket Server
+```
+
+---
+
+### 🌐 **6️⃣ Start the WebSocket Server**
+
+```bash
 cd web-dashboard
 npm install
 node server.js
+```
 
 ---
 
