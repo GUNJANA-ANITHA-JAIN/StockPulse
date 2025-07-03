@@ -1,5 +1,5 @@
 # 📈 StockPulse – Real-Time Stock Trade Monitoring System
-StockPulse is a real-time stock monitoring system that simulates high-frequency trading, detects anomalies, and streams live analytics to a responsive dashboard. Built with Kafka, MongoDB, Node.js, WebSockets, and Chart.js — it's designed to emulate fault-tolerant, production-grade fintech pipelines.
+StockPulse is a real-time stock monitoring system that simulates high-frequency trading, detects anomalies, and streams live analytics to a responsive dashboard. Built with Dockerized Kafka, MongoDB, Node.js, WebSockets, and Chart.js — it's designed to emulate fault-tolerant, production-grade fintech pipelines.
 
 ---
 
@@ -144,12 +144,6 @@ node server.js
 - **Scalability**: Easily extendable by adding more Kafka partitions and consumer threads
 - **Fault Tolerance**: Docker-based deployment + multi-partition design
 - **Low Latency**: WebSocket protocol ensures fast push-based updates to clients
----
-
-## 🔮 Future Enhancements
-- [ ] Add REST API for historical data querying
-- [ ] Swing-based Java dashboard (in progress)
-- [ ] TTL indexes in MongoDB for automatic log cleanup
 ---
 
 ## 💡 Inspiration
