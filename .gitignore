@@ -4,3 +4,4 @@ target/
 render.yml
 Dockerfile
 docker-compose.yml
+reset.bat

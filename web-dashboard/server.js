@@ -3,6 +3,8 @@ const http = require("http");
 const { Kafka } = require("kafkajs");
 const socketIo = require("socket.io");
 const mongoose = require("mongoose");
+require("dotenv").config(); // add this at the very top
+
 
 const app = express();
 const server = http.createServer(app);
@@ -11,8 +13,11 @@ const io = socketIo(server);
 app.use(express.static("public"));
 
 // Connect to MongoDB
-const mongoUri = "mongodb://localhost:27017/test";
-mongoose.connect(mongoUri,);
+const mongoUri = process.env.MONGO_URI;
+mongoose.connect(mongoUri, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+});
 const db = mongoose.connection;
 db.on("error", console.error.bind(console, "❌ MongoDB connection error:"));
 db.once("open", () => console.log("✅ MongoDB connected"));
