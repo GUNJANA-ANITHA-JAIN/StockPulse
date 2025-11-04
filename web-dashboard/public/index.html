@@ -32,12 +32,33 @@
       </section>
     </div>
 
+
     <div class="right-panel">
-      <section class="card">
-        <h2>📚 Order Book Snapshot</h2>
-        <div id="orderbookTable">Waiting for orderbook...</div>
-        <canvas id="orderbookChart"></canvas>
-      </section>
+    <section class="card">
+  <h2>📚 Order Book Snapshot</h2>
+  <div id="ob-meta" class="ob-meta">Symbol: - | Time: -</div>
+
+  <!-- Orderbook layout: table (left) + vertical depth (right) -->
+  <div class="ob-layout">
+    <table id="orderbookTable" class="ob-table">
+      <thead>
+        <tr>
+          <th>Bid Price</th>
+          <th>Bid Vol</th>
+          <th>Ask Price</th>
+          <th>Ask Vol</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+
+    <!-- Vertical depth chart -->
+    <div class="ob-depth">
+      <div class="depth-col bids" id="depthBids" aria-label="bids depth"></div>
+      <div class="depth-col asks" id="depthAsks" aria-label="asks depth"></div>
+    </div>
+  </div>
+</section>
     </div>
   </main>
 

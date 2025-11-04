@@ -3,28 +3,37 @@ echo ==========================================================
 echo             STARTING STOCKPULSE ECOSYSTEM
 echo ==========================================================
 
-REM --- Step 1: (Optional) Launch Docker Containers ---
-REM docker-compose up -d
-
-echo [2/7] Compiling Java Modules...
+REM ----------- COMPILE PROJECT -----------
+echo [1/6] Compiling Java modules...
 call mvn clean compile -q
 
-echo [3/7] Running Consumers (Dashboard, Anomaly, Report)...
-start "TradeDisplay" cmd /c mvn exec:java -Dexec.mainClass=com.example.stockmonitor.consumer.TradeDisplay
-start "DashboardConsumer" cmd /c mvn exec:java -Dexec.mainClass=com.example.stockmonitor.consumer.DashboardConsumer
-start "AnomalyConsumer" cmd /c mvn exec:java -Dexec.mainClass=com.example.stockmonitor.consumer.AnomalyConsumer
-start "ReportConsumer" cmd /c mvn exec:java -Dexec.mainClass=com.example.stockmonitor.consumer.ReportConsumer
+REM ----------- START KAFKA CONSUMERS -----------
+echo [2/6] Starting Kafka Consumers...
 
-echo [4/7] Running OrderBookEngine (simulated orders)...
-start "OrderBookEngine" cmd /c mvn exec:java -Dexec.mainClass=com.example.stockmonitor.producer.OrderBookEngine
+start "DashboardConsumer" cmd /k mvn exec:java -Dexec.mainClass=com.example.stockmonitor.consumer.DashboardConsumer
+start "AnomalyConsumer" cmd /k mvn exec:java -Dexec.mainClass=com.example.stockmonitor.consumer.AnomalyConsumer
+start "ReportConsumer" cmd /k mvn exec:java -Dexec.mainClass=com.example.stockmonitor.consumer.ReportConsumer
 
-echo [7/7] Launching Web Dashboard...
+REM (Optional - TradeDisplay, if you use it)
+start "TradeDisplay" cmd /k mvn exec:java -Dexec.mainClass=com.example.stockmonitor.consumer.TradeDisplay
+
+REM ----------- START PRODUCERS -----------
+echo [3/6] Starting OrderBook Engine (Java, real data)...
+start "OrderBookEngine" cmd /k mvn exec:java -Dexec.mainClass=com.example.stockmonitor.producer.OrderBookEngine
+
+@REM echo [4/6] Starting Trade Load Simulator...
+@REM start "TradeSimulator" cmd /k mvn exec:java -Dexec.mainClass=com.example.stockmonitor.producer.TradeLoadSimulator
+
+REM ----------- START WEB UI SERVER -----------
+echo [5/6] Launching Web Dashboard...
 cd web-dashboard
-start "Dashboard" cmd /c npm start
+start "Dashboard Server" cmd /k npm start
 cd ..
 
 echo ==========================================================
-echo ✅ StockPulse ecosystem is up and running!
-echo 🌐 Open your dashboard at: http://localhost:3001
+echo ✅ All services started!
+echo 🌐 Open Dashboard: http://localhost:3001
+echo 📦 Kafka Topics: executed-trades | orderbook | anomalies | reports
 echo ==========================================================
+
 pause

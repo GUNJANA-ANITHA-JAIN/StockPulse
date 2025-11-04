@@ -113,3 +113,122 @@ pre {
   border-radius: 8px;
   overflow-y: auto;
 }
+/* meta line under header */
+.ob-meta {
+  font-size: 0.9rem;
+  color: #555;
+  margin: 6px 0 10px;
+}
+
+/* grid: table + vertical depth */
+.ob-layout {
+  display: grid;
+  grid-template-columns: 1fr 160px; /* table + depth chart width */
+  gap: 14px;
+  align-items: start;
+}
+
+/* table */
+.ob-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-variant-numeric: tabular-nums;
+}
+.ob-table th, .ob-table td {
+  border-bottom: 1px solid #e9ecef;
+  padding: 6px 8px;
+}
+.ob-table tbody tr:nth-child(odd) { background: #fafafa; }
+
+/* best bid/ask highlight (flash) */
+.best {
+  font-weight: 600;
+  box-shadow: inset 0 0 0 9999px rgba(0,0,0,0.02);
+  position: relative;
+}
+.flash {
+  animation: flashFade 500ms ease;
+}
+@keyframes flashFade {
+  from { box-shadow: inset 0 0 0 9999px rgba(255,255,0,0.25); }
+  to   { box-shadow: inset 0 0 0 9999px rgba(0,0,0,0.02); }
+}
+
+/* vertical depth container */
+.ob-depth {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  height: 260px;           /* matches ~5 rows; adjust if you show more rows */
+  min-width: 140px;
+}
+.depth-col {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  gap: 4px;
+}
+.depth-col.bids { justify-content: flex-end; }  /* bids stack from bottom */
+.depth-col.asks { justify-content: flex-start; }/* asks stack from top   }
+
+/* translucent blocks (Coinbase style) */
+.depth-block {
+  width: 100%;
+  border-radius: 4px;
+  background-clip: padding-box;
+  opacity: 0.85;
+  transition: height 120ms linear, opacity 120ms linear;
+}
+.depth-col.bids .depth-block {
+  background: rgba(46, 160, 67, 0.22);   /* green */
+  border: 1px solid rgba(46, 160, 67, 0.28);
+}
+.depth-col.asks .depth-block {
+  background: rgba(220, 53, 69, 0.20);   /* red */
+  border: 1px solid rgba(220, 53, 69, 0.28);
+}
+.depth-label {
+  position: relative;
+  margin-top: -18px;
+  font-size: 0.75rem;
+  color: #333;
+  text-align: center;
+  pointer-events: none;
+}
+
+/* price/volume colors inside table */
+.bid-t { color: #1c7; }  /* green-ish */
+.ask-t { color: #d33; }  /* red-ish  */
+/* --- Hybrid Trading UI Mode --- */
+td, .depth-block {
+  transition: 
+    background-color 0.45s ease,
+    color 0.35s ease,
+    opacity 0.45s ease,
+    border-color 0.45s ease,
+    transform 0.25s ease;
+}
+
+/* Soft bid/ask highlight flash */
+td.flash-green {
+  background-color: rgba(0,255,127,0.2);
+}
+td.flash-red {
+  background-color: rgba(255,99,71,0.2);
+}
+
+/* Remove hard blink */
+td:empty {
+  background: transparent !important;
+}
+
+/* Depth ladder smooth fill */
+.depth-block {
+  transition: height 0.4s ease, opacity 0.4s ease;
+  border-radius: 2px;
+}
+
+/* Symbol theme fade */
+body {
+  transition: background 0.6s ease, color 0.6s ease;
+}
