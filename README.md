@@ -67,47 +67,39 @@ Designed to emulate event-driven financial systems used in trading platforms (Co
 
 ## 📂 Project Structure
 
-Directory structure:
-└── gunjana-anitha-jain-stockpulse/
-    ├── README.md
+gunjana-anitha-jain-stockpulse/
+├── README.md
+├── package.json                # Node.js dependencies for WebSocket dashboard
+├── pom.xml                     # Maven config for Java Kafka services
+├── render.yaml                 # Deployment config (Render)
+├── requirements.txt            # Python (optional utilities / analytics)
+├── run-all.bat                 # Start all services script (Windows)
+├── stop-stockpulse.bat         # Stop all services script (Windows)
+├── src/
+│   ├── main/java/com/example/stockmonitor/
+│   │   ├── App.java            # Main entry point
+│   │   ├── consumer/           # Kafka consumers
+│   │   │   ├── AnomalyConsumer.java
+│   │   │   ├── DashboardConsumer.java
+│   │   │   ├── MetricsConsumer.java
+│   │   │   ├── ReportConsumer.java
+│   │   │   └── TradeDisplay.java
+│   │   ├── model/              # Data models
+│   │   │   ├── Order.java
+│   │   │   └── Trade.java
+│   │   └── producer/           # Kafka producers
+│   │       ├── OrderBookEngine.java
+│   │       └── TradeLoadSimulator.java
+│   └── test/java/com/example/stockmonitor/
+│       └── AppTest.java        # Unit tests
+└── web-dashboard/              # Real-time dashboard (Node.js + WebSockets)
     ├── package.json
-    ├── pom.xml
-    ├── render.yaml
-    ├── requirements.txt
-    ├── run-all.bat
-    ├── stop-stockpulse.bat
-    ├── src/
-    │   ├── main/
-    │   │   └── java/
-    │   │       └── com/
-    │   │           └── example/
-    │   │               └── stockmonitor/
-    │   │                   ├── App.java
-    │   │                   ├── consumer/
-    │   │                   │   ├── AnomalyConsumer.java
-    │   │                   │   ├── DashboardConsumer.java
-    │   │                   │   ├── MetricsConsumer.java
-    │   │                   │   ├── ReportConsumer.java
-    │   │                   │   └── TradeDisplay.java
-    │   │                   ├── model/
-    │   │                   │   ├── Order.java
-    │   │                   │   └── Trade.java
-    │   │                   └── producer/
-    │   │                       ├── OrderBookEngine.java
-    │   │                       └── TradeLoadSimulator.java
-    │   └── test/
-    │       └── java/
-    │           └── com/
-    │               └── example/
-    │                   └── stockmonitor/
-    │                       └── AppTest.java
-    └── web-dashboard/
-        ├── package.json
-        ├── server.js
-        └── public/
-            ├── app.js
-            ├── index.html
-            └── style.css
+    ├── server.js               # WebSocket + Express server
+    └── public/                 # Front-end UI
+        ├── app.js
+        ├── index.html
+        └── style.css
+
 
 ---
 
