@@ -11,8 +11,7 @@ Designed to emulate event-driven financial systems used in trading platforms (Co
 
 ---
 
-## 🚀 System Architecture
-
+## 🏗 Architecture Diagram
 ┌────────────┐        ┌────────────────┐        ┌──────────────────┐
 │ OrderBook  │ ---->  │ Kafka Topics   │ ---->  │ Consumers         │
 │ Engine (Java)       │ executed-trades│        │ DashboardConsumer │
@@ -27,7 +26,7 @@ Designed to emulate event-driven financial systems used in trading platforms (Co
                                   │
                                   ▼
                       🖥 Real-Time Web Dashboard
-
+                      
 ---
 
 ## 🧠 Core Features
