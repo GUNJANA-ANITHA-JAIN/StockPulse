@@ -10,6 +10,10 @@ Designed to emulate event-driven financial systems used in trading platforms (Co
 ✅ Real-time dashboard (WebSockets + Chart.js)
 
 ---
+## Demo Video/Screenshot:
+
+https://github.com/user-attachments/assets/6d6260ef-d7fa-441f-9354-48d971991bc4
+
 <img width="3628" height="2976" alt="localhost_3001_ (3)" src="https://github.com/user-attachments/assets/52114d32-45c9-4d5a-8a82-0df1c0965938" />
 
 ---
