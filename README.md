@@ -66,7 +66,6 @@ Designed to emulate event-driven financial systems used in trading platforms (Co
 ---
 
 ## 📂 Project Structure
-
 gunjana-anitha-jain-stockpulse/
 ├── README.md
 ├── package.json                # Node.js dependencies for WebSocket dashboard
@@ -99,7 +98,6 @@ gunjana-anitha-jain-stockpulse/
         ├── app.js
         ├── index.html
         └── style.css
-
 
 ---
 
