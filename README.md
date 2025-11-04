@@ -12,21 +12,9 @@ Designed to emulate event-driven financial systems used in trading platforms (Co
 ---
 
 ## 🏗 Architecture Diagram
-┌────────────┐        ┌────────────────┐        ┌──────────────────┐
-│ OrderBook  │ ---->  │ Kafka Topics   │ ---->  │ Consumers         │
-│ Engine (Java)       │ executed-trades│        │ DashboardConsumer │
-│ match + publish     │ orderbook      │        │ AnomalyConsumer   │
-└────────────┘        │ reports        │        │ ReportConsumer    │
-                      └────────────────┘        └──────────────────┘
-                                  │
-                                  ▼
-                      ┌────────────────────┐
-                      │ Node.js WebSocket │
-                      └────────────────────┘
-                                  │
-                                  ▼
-                      🖥 Real-Time Web Dashboard
-                      
+
+<img width="764" height="481" alt="image" src="https://github.com/user-attachments/assets/460f3716-e01b-4ab2-bea6-50c4f38ef3a3" />
+                
 ---
 
 ## 🧠 Core Features
