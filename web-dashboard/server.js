@@ -1,140 +1,107 @@
-const express = require("express");
-const http = require("http");
-const { Kafka } = require("kafkajs");
-const socketIo = require("socket.io");
-const mongoose = require("mongoose");
-require("dotenv").config(); // add this at the very top
+require('dotenv').config();
 
+const express = require('express');
+const http = require('http');
+const { Kafka } = require('kafkajs');
+const socketIo = require('socket.io');
+const mongoose = require('mongoose');
 
+const PORT = process.env.PORT || 3001;
 const app = express();
 const server = http.createServer(app);
-const io = socketIo(server);
-
-app.use(express.static("public"));
-
-// Connect to MongoDB
-const mongoUri = process.env.MONGO_URI;
-mongoose.connect(mongoUri, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-});
-const db = mongoose.connection;
-db.on("error", console.error.bind(console, "❌ MongoDB connection error:"));
-db.once("open", () => console.log("✅ MongoDB connected"));
-
-const tradeSchema = new mongoose.Schema({}, { strict: false });
-const anomalySchema = new mongoose.Schema({}, { strict: false });
-const reportSchema = new mongoose.Schema({}, { strict: false });
-
-const Trade = mongoose.model("Trade", tradeSchema, "trades");
-const Anomaly = mongoose.model("Anomaly", anomalySchema, "anomalies");
-const Report = mongoose.model("Report", reportSchema, "reports");
-
-// Kafka Setup
-const kafka = new Kafka({ clientId: "web-dashboard", 
-  brokers: ["localhost:9092"] });
-
-const tradeConsumer = kafka.consumer({ groupId: "web-dashboard-trade-group" });
-const anomalyConsumer = kafka.consumer({ groupId: "web-dashboard-anomaly-group" });
-const reportConsumer = kafka.consumer({ groupId: "web-dashboard-report-group" });
-
-// Trade Consumer: Write to DB
-(async () => {
-  await tradeConsumer.connect();
-  await tradeConsumer.subscribe({ topic: "trades", fromBeginning: false });
-
-  await tradeConsumer.run({
-    eachMessage: async ({ message }) => {
-      try {
-        const trade = JSON.parse(message.value.toString());
-        await Trade.create(trade);
-      } catch (e) {
-        console.error("❌ Trade insert error:", e.message);
-      }
-    },
-  });
-})();
-
-// Anomaly Consumer: Write to DB
-(async () => {
-  await anomalyConsumer.connect();
-  await anomalyConsumer.subscribe({ topic: "anomalies", fromBeginning: false });
-
-  await anomalyConsumer.run({
-    eachMessage: async ({ message }) => {
-      try {
-        const anomaly = JSON.parse(message.value.toString());
-        await Anomaly.create(anomaly);
-      } catch (e) {
-        console.error("❌ Anomaly insert error:", e.message);
-      }
-    },
-  });
-})();
-
-// Report Consumer: Write to DB
-(async () => {
-  await reportConsumer.connect();
-  await reportConsumer.subscribe({ topic: "reports", fromBeginning: false });
-
-  await reportConsumer.run({
-  eachMessage: async ({ message }) => {
-    try {
-      const key = message.key?.toString();
-      const value = message.value?.toString();
-
-      if (key === "__RESET__" && value === "__RESET__") {
-        console.log("🔄 Reset signal received — clearing reports collection");
-        await Report.deleteMany({});
-      } else {
-        await Report.create({ value });
-      }
-    } catch (e) {
-      console.error("❌ Report insert error:", e.message);
-    }
-  },
-});
-})();
-
-setInterval(async () => {
-  try {
-    const trades = await Trade.find().sort({ _id: -1 }).limit(5);
-    const anomaly = await Anomaly.findOne().sort({ _id: -1 });
-
-    // Fetch latest summary messages from MongoDB
-    const summaries = await Report.find().sort({ _id: -1 }).limit(20);
-
-    io.emit("liveTrade", trades.map(t => ({
-      symbol: t.symbol || t.stockSymbol,
-      price: Number(t.price).toFixed(2),
-      volume: t.volume,
-    })));
-
-    if (anomaly && anomaly.symbol && anomaly.percentageChange) {
-      anomaly.message = `Anomaly Detected: ${anomaly.symbol} price changed by ${Number(anomaly.percentageChange).toFixed(2)}%`;
-    }
-
-    io.emit("anomalyDetected", anomaly?.message ? anomaly : {});
-    io.emit("summaryUpdate", summaries.map(r => r.value)); // Send only value field
-    const chartData = summaries.map(doc => {
-  const [symbol, volumeStr] = doc.value.split(" = ");
-  return {
-    label: symbol.replace(": Total Volume", ""),
-    value: parseInt(volumeStr)
-  };
-});
-io.emit("chartUpdate", chartData);
-  } catch (err) {
-    console.error("❌ MongoDB read error:", err.message);
+const io = socketIo(server, {
+  cors: {
+    origin: '*',
+    methods: ['GET', 'POST']
   }
-}, 1000);
-
-// WebSocket
-io.on("connection", (socket) => {
-  console.log("⚡ Web client connected");
-  socket.on("disconnect", () => console.log("❌ Web client disconnected"));
 });
 
-server.listen(3001, () => {
-  console.log("WebSocket server running on http://localhost:3001");
+app.use(express.static('public'));
+
+// MongoDB setup
+mongoose.connect(process.env.MONGOURI, { useNewUrlParser: true, useUnifiedTopology: true })
+  .then(() => console.log('MongoDB connected'))
+  .catch(err => console.error('MongoDB error:', err.message));
+
+const AnySchema = new mongoose.Schema({}, { strict: false });
+const Trade = mongoose.model('Trade', AnySchema, 'trades');
+const OB = mongoose.model('Orderbook', AnySchema, 'orderbook');
+
+// Kafka setup
+const kafka = new Kafka({
+  clientId: 'stockpulse-dashboard',
+  brokers: [process.env.KAFKABROKER || 'localhost:9092']
+});
+
+const consumer = kafka.consumer({ groupId: 'dashboard-' + Math.random().toString(36).slice(2, 8) });
+
+let liveTrades = [];
+let orderbooks = {};
+
+async function startConsumers() {
+  await consumer.connect();
+  await consumer.subscribe({ topics: ['executed-trades', 'orderbook', 'anomalies', 'reports'], fromBeginning: false });
+
+  await consumer.run({
+  eachMessage: async ({ topic, message }) => {
+    const rawValue = message.value.toString();
+    let parsed;
+    try {
+      parsed = JSON.parse(rawValue);
+    } catch (e) {
+      console.warn(`Skipping non-JSON message on topic ${topic}:`, rawValue);
+      return; // skip message processing, don't throw
+    }
+
+    switch (topic) {
+      case 'executed-trades':
+        liveTrades.push(parsed);
+        if (liveTrades.length > 25) liveTrades.shift();
+        io.emit('liveTrade', parsed);
+        io.emit('liveTradesSnapshot', liveTrades.slice(-15));
+        break;
+      case 'orderbook':
+        orderbooks = parsed;
+        io.emit('orderbookUpdate', parsed);
+        break;
+      case 'anomalies':
+        io.emit('anomalyDetected', parsed);
+        break;
+      case 'reports':
+        io.emit('tradeSummaries', parsed);
+        break;
+    }
+  }
+});
+
+
+  consumer.on(consumer.events.CRASH, async (event) => {
+    console.error('Kafka consumer crashed:', event.payload.error);
+    try {
+      await consumer.disconnect();
+      await consumer.connect();
+      await consumer.subscribe({ topics: ['executed-trades', 'orderbook', 'anomalies', 'reports'], fromBeginning: false });
+    } catch (reconnectError) {
+      console.error('Error reconnecting Kafka consumer:', reconnectError);
+    }
+  });
+}
+
+io.on('connection', (socket) => {
+  console.log('New client connected, socket id:', socket.id);
+  // Send initial snapshots on connection
+  socket.emit('liveTradesSnapshot', liveTrades.slice(-15));
+  socket.emit('orderbookUpdate', orderbooks);
+
+  socket.on('disconnect', () => {
+    console.log('Client disconnected, socket id:', socket.id);
+  });
+});
+
+startConsumers().catch(err => {
+  console.error('Failed to start Kafka consumers:', err);
+});
+
+server.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
 });

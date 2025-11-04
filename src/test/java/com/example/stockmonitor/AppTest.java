@@ -11,9 +11,17 @@ public class AppTest {
 
     @Test
     public void testTradeSerialization() throws Exception {
-        Trade trade = new Trade("T001", "AAPL", 150.0, 100, System.currentTimeMillis());
-        ObjectMapper mapper = new ObjectMapper();
+        Trade trade = new Trade(
+                "T001",
+                "AAPL",
+                150.0,
+                100,
+                "BUY123",
+                "SELL456",
+                System.currentTimeMillis()
+        );
 
+        ObjectMapper mapper = new ObjectMapper();
         String json = mapper.writeValueAsString(trade);
         assertNotNull(json);
 

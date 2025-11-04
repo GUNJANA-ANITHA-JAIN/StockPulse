@@ -1,44 +1,47 @@
-<!-- index.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>📈 StockPulse</title>
-  <link rel="stylesheet" href="style.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="utf-8" />
+  <title>📈 StockPulse Dashboard</title>
+  <link rel="stylesheet" href="style.css" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-  <h1>📊 Real-Time Stock Trade Monitor</h1>
+  <header>
+    <h1>📊 StockPulse — Real-Time Trade Monitoring</h1>
+    <p class="subtitle">Streaming live market data, anomalies & analytics</p>
+  </header>
 
-  <div class="dashboard">
-    <!-- Left Side -->
+  <main class="dashboard">
     <div class="left-panel">
-      <section>
-        <h2>🟢 Live Trades</h2>
-        <pre id="liveTrades">Waiting for data...</pre>
+      <section class="card">
+        <h2>🟢 Live Trades <span id="liveTradeCount" style="font-size:0.85rem; color:#666"> (0)</span></h2>
+        <pre id="liveTrades">Waiting for trades...</pre>
       </section>
 
-      <section>
+      <section class="card">
         <h2>⚠️ Anomalies</h2>
-        <pre id="anomalies">Loading anomalies...</pre>
+        <pre id="anomalies">No anomalies yet</pre>
       </section>
 
-      <section>
-        <h2>📋 Trade Summaries</h2>
-        <pre id="summary">Loading summary...</pre>
+      <section class="card">
+        <h2>📋 Trade Summaries / Top 5 Volumes</h2>
+        <pre id="summary">Waiting for summaries...</pre>
+        <canvas id="summaryChart"></canvas>
       </section>
     </div>
 
-    <!-- Right Side -->
     <div class="right-panel">
-      <section>
-        <h2>📈 Top 5 Stocks by Volume</h2>
-        <canvas id="summaryChart" width="400" height="250"></canvas>
+      <section class="card">
+        <h2>📚 Order Book Snapshot</h2>
+        <div id="orderbookTable">Waiting for orderbook...</div>
+        <canvas id="orderbookChart"></canvas>
       </section>
     </div>
-  </div>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
+  </main>
+
+  <script src="/socket.io/socket.io.js"></script>
   <script src="app.js" defer></script>
 </body>
 </html>

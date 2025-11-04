@@ -1,52 +1,97 @@
-const socket = io("http://localhost:3001");
+const socket = io();
+const liveTradesEl = document.getElementById('liveTrades');
+const liveTradeCountEl = document.getElementById('liveTradeCount');
+const anomaliesEl = document.getElementById('anomalies');
+const orderbookTableEl = document.getElementById('orderbookTable');
+const summaryEl = document.getElementById('summary');
 
-    socket.on("connect", () => console.log("✅ Connected to WebSocket server"));
-    socket.on("disconnect", () => console.log("❌ Disconnected from WebSocket server"));
+let liveTrades = [];
 
-    socket.on("liveTrade", (data) => {
-      document.getElementById("liveTrades").textContent =
-        data.map(t => `${t.symbol}: $${t.price} (${t.volume} shares)`).join("\n");
-    });
+socket.on('connect', () => {
+  console.log('Connected to WebSocket');
+});
 
-    socket.on("anomalyDetected", (data) => {
-      document.getElementById("anomalies").textContent = data.message || "No anomaly detected.";
-    });
+socket.on('disconnect', () => {
+  console.log('Disconnected from WebSocket');
+});
 
-    socket.on("summaryUpdate", (summaries) => {
-      const div = document.getElementById("summary");
-      div.textContent = summaries.length === 0 ? "No summary available" : summaries.join("\n");
-    });
+// Receive real-time trades
+socket.on('liveTrade', (trade) => {
+  liveTrades.push(trade);
+  if (liveTrades.length > 50) liveTrades.shift();
+  updateTradeUI();
+});
 
-    // Chart.js integration
-    let chart;
-    const ctx = document.getElementById("summaryChart").getContext("2d");
+socket.on('liveTradesSnapshot', (trades) => {
+  liveTrades = trades || [];
+  updateTradeUI();
+});
 
-    socket.on("chartUpdate", (data) => {
-      if (chart) chart.destroy();
-      chart = new Chart(ctx, {
-        type: "bar",
-        data: {
-          labels: data.map(d => d.label),
-          datasets: [{
-            label: "Total Volume",
-            data: data.map(d => d.value),
-            backgroundColor: "rgba(75, 192, 192, 0.6)",
-            borderRadius: 5
-          }]
-        },
-        options: {
-          animation:false,
-          responsive: true,
-          plugins: {
-            legend: { display: false },
-            title: { display: true, text: '📈 Real-Time Volume (Top 5)' }
-          },
-          scales: {
-            y: {
-              beginAtZero: true,
-              ticks: { precision: 0 }
-            }
-          }
-        }
-      });
-    });
+socket.on('orderbookUpdate', (orderbook) => {
+  updateOrderbook(orderbook);
+});
+
+// New: Receive anomalies and update UI
+socket.on('anomalyDetected', (anomaly) => {
+  const div = document.createElement('div');
+  div.textContent = `⚠️ Anomaly detected: ${JSON.stringify(anomaly)}`;
+  anomaliesEl.appendChild(div);
+});
+
+// New: Receive trade summaries and update UI
+socket.on('tradeSummaries', (summary) => {
+  if (!summary || Object.keys(summary).length === 0) {
+    summaryEl.textContent = 'Waiting for summaries...';
+    return;
+  }
+  summaryEl.textContent = JSON.stringify(summary, null, 2);
+});
+
+// Debounced DOM update for trades
+let tradeUpdateTimeout;
+function updateTradeUI() {
+  if (tradeUpdateTimeout) clearTimeout(tradeUpdateTimeout);
+  tradeUpdateTimeout = setTimeout(() => {
+    liveTradesEl.innerHTML = liveTrades.slice(-15).map(t =>
+      `<div>${t.stockSymbol} @ ${Number(t.price).toFixed(2)} vol: ${t.volume}</div>`
+    ).join('');
+    liveTradeCountEl.innerText = `Trades: ${liveTrades.length}`;
+  }, 100);
+}
+
+// Basic orderbook table update
+function updateOrderbook(orderbook) {
+  if (!orderbook) return;
+  while (orderbookTableEl.rows.length > 1) {
+    orderbookTableEl.deleteRow(1);
+  }
+
+  const bids = orderbook.bids || [];
+  const asks = orderbook.asks || [];
+  const maxRows = Math.max(bids.length, asks.length);
+
+  for (let i = 0; i < maxRows; i++) {
+    const row = orderbookTableEl.insertRow();
+
+    const bidPriceCell = row.insertCell(0);
+    const bidVolumeCell = row.insertCell(1);
+    const askPriceCell = row.insertCell(2);
+    const askVolumeCell = row.insertCell(3);
+
+    if (bids[i]) {
+      bidPriceCell.innerText = bids[i].price.toFixed(2);
+      bidVolumeCell.innerText = bids[i].volume;
+    } else {
+      bidPriceCell.innerText = '';
+      bidVolumeCell.innerText = '';
+    }
+
+    if (asks[i]) {
+      askPriceCell.innerText = asks[i].price.toFixed(2);
+      askVolumeCell.innerText = asks[i].volume;
+    } else {
+      askPriceCell.innerText = '';
+      askVolumeCell.innerText = '';
+    }
+  }
+}
