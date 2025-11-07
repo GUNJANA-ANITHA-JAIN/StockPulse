@@ -2,6 +2,7 @@
 
 A distributed real-time market simulation system built using **Java, Kafka, WebSockets, and Node.js**.
 Designed to emulate event-driven financial systems used in trading platforms (Coinbase, Robinhood, Zerodha) with:
+
 ✅ Live order-book engine (multi-stock)  
 ✅ Real-time matching & trade execution  
 ✅ Kafka-based streaming pipeline  
